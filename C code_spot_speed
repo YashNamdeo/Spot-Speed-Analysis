@@ -1,0 +1,107 @@
+#include<stdio.h>
+#include<math.h>
+int n;
+float speed_data[100];
+int frequency[100];
+float sum_of_speed=0,mean_speed,variance,standard_deviation;
+int sum_freq=0;
+
+void f_mean()
+{
+    int i;
+    for(i=0;i<n;i++)
+    {
+        sum_of_speed+=speed_data[i]*frequency[i];
+        sum_freq+=frequency[i];
+    }
+    mean_speed=sum_of_speed/sum_freq;
+    printf("%4.2f\n",mean_speed);
+}
+void f_var()
+{
+    int i;
+    float temp_var=0;
+    for(i=0;i<n;i++)
+    {
+        temp_var+=(speed_data[i]-mean_speed)*(speed_data[i]-mean_speed)*frequency[i];
+    }
+    variance=temp_var/sum_freq;
+    standard_deviation=sqrt(variance);
+    printf("%4.2f\n",variance);
+}
+
+void f_percentile()
+{
+    int i,j,k,temp_var=0;
+    float m,percentile_50,percentile_85,percentile_98;
+    for(i=0;i<n;i++)
+    {
+        if((temp_var+frequency[i])>=(sum_freq*0.5))
+        {
+            break;
+        }
+        temp_var+=frequency[i];
+    }
+    m=(speed_data[i]-speed_data[i-1])/(frequency[i]);
+    percentile_50=speed_data[i-1] + m*(sum_freq*0.5-temp_var);
+    printf("%4.2f\n",percentile_50);
+
+    for(j=i+1;j<n;j++)
+    {
+
+        if(temp_var+frequency[j]>=(sum_freq*0.85))
+        {
+            break;
+        }
+        temp_var+=frequency[j];
+    }
+    m=(speed_data[j]-speed_data[j-1])/(frequency[j]);
+    percentile_85=speed_data[j-1] + m*(0.85*sum_freq-temp_var);
+    printf("%4.2f\n",percentile_85);
+
+    for(k=j+1;k<n;k++)
+    {
+
+        if(temp_var+frequency[k]>=(sum_freq*0.98))
+        {
+            break;
+        }
+        temp_var+=frequency[k];
+    }
+    m=(speed_data[k]-speed_data[k-1])/(frequency[k]);
+    percentile_98=speed_data[k-1] + m*(0.98*sum_freq-temp_var);
+    printf("%4.2f\n",percentile_98);
+
+}
+
+int main()
+{
+    FILE *f,*s;
+    f=fopen("f.txt","r");
+    if(f==NULL)
+    {
+        printf("error\n");
+        return;
+    }
+    s=fopen("s.txt","r");
+    if(s==NULL)
+    {
+        printf("error\n");
+        return;
+    }
+
+    printf("enter number of entries\n");
+    scanf("%d",&n);
+
+    int i;
+    for(i=0;i<n;i++)
+    {
+        fscanf(s,"%f",&speed_data[i]);
+        fscanf(f,"%d",&frequency[i]);
+    }
+
+    f_mean();
+    f_var();
+    f_percentile();
+}
+ 
